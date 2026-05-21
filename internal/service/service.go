@@ -94,7 +94,7 @@ func normalize(s string) string { return strings.TrimSpace(s) }
 func (s *Service) CreateDepartment(ctx context.Context, in CreateDepartmentInput) (*DepartmentResponse, error) {
 	name := normalize(in.Name)
 	if err := validateName(name); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: name %s", ErrValidation, err.Error())
 	}
 
 	if in.ParentID != nil {
@@ -216,7 +216,7 @@ func (s *Service) UpdateDepartment(ctx context.Context, id uint, in UpdateDepart
 	if in.Name != nil {
 		name := normalize(*in.Name)
 		if err := validateName(name); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("%w: name %s", ErrValidation, err.Error())
 		}
 		count, err := s.repo.CountSiblingDepartmentByName(ctx, d.ParentID, name, &d.ID)
 		if err != nil {
@@ -351,3 +351,4 @@ func toEmployeeResponse(e *models.Employee) *EmployeeResponse {
 	}
 	return &EmployeeResponse{ID: e.ID, DepartmentID: e.DepartmentID, FullName: e.FullName, Position: e.Position, HiredAt: hiredAt, CreatedAt: e.CreatedAt}
 }
+
