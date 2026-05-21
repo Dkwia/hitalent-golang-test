@@ -1,0 +1,31 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: orgdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d orgdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: ../../Downloads/Telegram Desktop/organization-api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PORT: 8080
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: orgdb
+      DB_SSLMODE: disable
+      DB_TIMEZONE: UTC
+    ports:
+      - "8080:8080"
